@@ -1,0 +1,25 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "mysql-db",
+            "database": "class_schedule_management",
+            "username": "root",
+            "password": ""
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "sqlite-db",
+            "database": "${workspaceFolder:Class-Schedule-Management}/server/db.sqlite"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

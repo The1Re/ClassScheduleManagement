@@ -1,7 +1,7 @@
-INSERT INTO teacher
+INSERT INTO student(studentId, fullName, lastName)
 VALUES
-    ('A001', 'Tony', 'Stark'),
-    ('A002', 'Mario', 'Jump'),
-    ('A003', 'Peter', 'Paker'),
-    ('A004', 'Kang', 'Conquerer')
+    ('S0001', 'Tony', 'Stark'),
+    ('S0002', 'Mario', 'Jump'),
+    ('S0003', 'Peter', 'Paker'),
+    ('S0004', 'Kang', 'Conquerer')
 ;

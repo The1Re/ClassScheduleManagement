@@ -1,88 +1,88 @@
 import { useState, useEffect } from 'react';
 import ScheduleTable from '../components/ScheduleTable';
+import { fetchData, getSchedule, updateData, updateSchedule } from '../utils';
+import { EditingDetails, ScheduleItem } from '../models';
+import { detailedTimeSlots } from '../utils/constant';
 
 const TeacherPage = () => {
-  const [teachers, setTeachers] = useState<string[]>(() => {
-    const savedTeachers = localStorage.getItem('teachers');
-    return savedTeachers ? JSON.parse(savedTeachers) : [];
-  });
-  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
-  const [schedule, setSchedule] = useState<{ [teacher: string]: { [day: string]: { [timeSlot: string]: string } } }>(() => {
-    const savedSchedule = localStorage.getItem('teacherSchedule');
-    return savedSchedule ? JSON.parse(savedSchedule) : {};
-  });
+  const [teachers, setTeachers] = useState<string[]>(fetchData('teachers'));
+  const [selectedTeacher, setSelectedTeacher] = useState<string>('');
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('teachers', JSON.stringify(teachers));
-    localStorage.setItem('teacherSchedule', JSON.stringify(schedule));
-  }, [teachers, schedule]);
+    updateData('teachers', JSON.stringify(teachers));
+  }, [teachers]);
 
-  const addTeacher = (name: string) => {
-    if (!name || teachers.includes(name)) return;
+  useEffect(() => {
+    if (selectedTeacher)
+      setSchedules(getSchedule('teachers', selectedTeacher));
+  }, [selectedTeacher])
+
+  function addTeacher(name: string) {
+    if (!name || teachers.some(teacher => teacher === name)) return;
     setTeachers([...teachers, name]);
   };
 
-  const removeTeacher = (name: string) => {
+  function removeTeacher(name: string) {
     const updatedTeachers = teachers.filter(teacher => teacher !== name);
     setTeachers(updatedTeachers);
-    if (selectedTeacher === name) setSelectedTeacher(null);
-
-    const updatedSchedule = { ...schedule };
-    delete updatedSchedule[name];
-    setSchedule(updatedSchedule);
+    if (selectedTeacher === name) setSelectedTeacher('');
   };
 
-  const selectTeacher = (name: string) => setSelectedTeacher(name);
-
-  const editSchedule = (
-    day: string,
-    timeSlot: string,
-    duration: number,
-    subject: string
-  ) => {
-    if (!selectedTeacher) return;
-  
-    // Calculate end time based on duration
-    const detailedTimeSlots = [
-      '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-      '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-      '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
-    ];
-  
+  function editSchedule({ day, timeSlot, duration, subject, group }: EditingDetails) : boolean {
     const startIndex = detailedTimeSlots.indexOf(timeSlot);
-    if (startIndex === -1) return;
-  
-    const updatedDaySchedule = { ...(schedule[selectedTeacher]?.[day] || {}) };
-  
-    // Check for overlapping schedule
-    for (let i = 0; i < duration; i++) {
-      const slot = detailedTimeSlots[startIndex + i];
-      if (!slot) break;
-  
-      if (updatedDaySchedule[slot]) {
-        // If there's a conflict, show an error popup
-        alert(`Error: Time slot ${slot} is already occupied by ${updatedDaySchedule[slot]}.`);
-        return;
-      }
+
+    if (subject === '') {
+      // If the subject is empty, remove the schedule item
+      const updatedSchedule = schedules.filter(
+        (item) => !(item.day === day && item.timeStart === timeSlot)
+      );
+      setSchedules(updatedSchedule);
+      updateSchedule(updatedSchedule);
+      return true;
     }
-  
-    // If no conflict, update the schedule
-    for (let i = 0; i < duration; i++) {
-      const slot = detailedTimeSlots[startIndex + i];
-      if (!slot) break;
-      updatedDaySchedule[slot] = subject;
-    }
-  
-    setSchedule({
-      ...schedule,
-      [selectedTeacher]: {
-        ...(schedule[selectedTeacher] || {}),
-        [day]: updatedDaySchedule,
-      },
+
+    const endTime = detailedTimeSlots[startIndex + duration];
+
+    const newSchedule: ScheduleItem = {
+      day,
+      subject,
+      timeStart: timeSlot,
+      timeEnd: endTime || timeSlot,
+      group,
+      teacher: selectedTeacher
+    };
+
+    const conflictItem = schedules.find((item) => {
+      if (item.day !== day) return false;
+      const existingStartIndex = detailedTimeSlots.indexOf(item.timeStart);
+      const existingEndIndex = detailedTimeSlots.indexOf(item.timeEnd);
+
+      const newStartIndex = detailedTimeSlots.indexOf(newSchedule.timeStart);
+      const newEndIndex = detailedTimeSlots.indexOf(newSchedule.timeEnd);
+
+      // Check if the time slots overlap
+      return (
+        (newStartIndex < existingEndIndex && newEndIndex > existingStartIndex)
+      );
     });
+
+    if (conflictItem) {
+      alert(`
+        Conflict detected:
+        day: ${conflictItem.day}
+        Time: ${conflictItem.timeStart} - ${conflictItem.timeEnd}
+        Subject: ${conflictItem.subject}
+        Group: ${conflictItem.group}
+      `);
+      return false;
+    }
+
+    const updatedSchedule = [...schedules, newSchedule];
+    setSchedules(updatedSchedule);
+    updateSchedule(updatedSchedule);
+    return true;
   };
-  
-  
 
   return (
     <div className="container mx-auto p-4">
@@ -91,10 +91,10 @@ const TeacherPage = () => {
         <div className="w-1/3">
           <h2 className="text-2xl font-semibold mb-2">Teachers</h2>
           <ul className="list-disc pl-5 mb-4">
-            {teachers.map((teacher) => (
+            {teachers.map((teacher, idx) => (
               <li
-                key={teacher}
-                onClick={() => selectTeacher(teacher)}
+                key={idx}
+                onClick={() => setSelectedTeacher(teacher)}
                 className={`cursor-pointer py-1 ${
                   selectedTeacher === teacher ? 'text-blue-500 font-bold' : ''
                 }`}
@@ -105,7 +105,7 @@ const TeacherPage = () => {
           </ul>
           <button
             onClick={() => addTeacher(prompt('Enter teacher name') || '')}
-            className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto"
+            className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mr-4"
           >
             Add Teacher
           </button>
@@ -114,16 +114,16 @@ const TeacherPage = () => {
               onClick={() => removeTeacher(selectedTeacher)}
               className="bg-red-500 text-white py-2 px-4 rounded w-auto"
             >
-              Remove Selected Teacher
+              Remove Selected
             </button>
           )}
         </div>
         <div className="w-2/3">
           {selectedTeacher && (
             <>
-              <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedTeacher}</h2>
+              <h2 className="text-2xl font-semibold mb-2 w-full">Schedule for {selectedTeacher}</h2>
               <ScheduleTable
-                schedule={schedule[selectedTeacher] || {}}
+                schedule={schedules}
                 onEdit={editSchedule}
               />
             </>

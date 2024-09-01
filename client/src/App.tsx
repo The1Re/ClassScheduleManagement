@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { HomePage, TeacherPage, ClassPage, NotFoundPage } from './pages';
 import NavBar from './components/Navbar';
+import './App.css'
 
 const App = () => {
   const dev = true;

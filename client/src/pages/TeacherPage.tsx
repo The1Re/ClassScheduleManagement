@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import ScheduleTable from '../components/ScheduleTable';
-import { fetchData, getSchedule, updateData, updateSchedule } from '../utils';
-import { EditingDetails, ScheduleItem } from '../models';
-import { detailedTimeSlots } from '../utils/constant';
+import { fetchData, getSchedule, updateData } from '../utils';
+import { ScheduleItem } from '../models';
 
-const TeacherPage = () => {
+export interface IMyContext {
+  teacher: string
+  setSchedules: React.Dispatch<React.SetStateAction<ScheduleItem[]>>
+}
+
+export const MyContext = createContext<IMyContext | null>(null);
+
+function TeacherPage() {
   const [teachers, setTeachers] = useState<string[]>(fetchData('teachers'));
   const [selectedTeacher, setSelectedTeacher] = useState<string>('');
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
@@ -14,9 +20,12 @@ const TeacherPage = () => {
   }, [teachers]);
 
   useEffect(() => {
-    if (selectedTeacher)
+    if (selectedTeacher){
       setSchedules(getSchedule('teachers', selectedTeacher));
-  }, [selectedTeacher])
+      return;
+    }
+    setSchedules(schedules.filter((schedule) => schedule.teacher === selectedTeacher));
+  }, [selectedTeacher, schedules])
 
   function addTeacher(name: string) {
     if (!name || teachers.some(teacher => teacher === name)) return;
@@ -29,60 +38,7 @@ const TeacherPage = () => {
     if (selectedTeacher === name) setSelectedTeacher('');
   };
 
-  function editSchedule({ day, timeSlot, duration, subject, group }: EditingDetails) : boolean {
-    const startIndex = detailedTimeSlots.indexOf(timeSlot);
-
-    if (subject === '') {
-      // If the subject is empty, remove the schedule item
-      const updatedSchedule = schedules.filter(
-        (item) => !(item.day === day && item.timeStart === timeSlot)
-      );
-      setSchedules(updatedSchedule);
-      updateSchedule(updatedSchedule);
-      return true;
-    }
-
-    const endTime = detailedTimeSlots[startIndex + duration];
-
-    const newSchedule: ScheduleItem = {
-      day,
-      subject,
-      timeStart: timeSlot,
-      timeEnd: endTime || timeSlot,
-      group,
-      teacher: selectedTeacher
-    };
-
-    const conflictItem = schedules.find((item) => {
-      if (item.day !== day) return false;
-      const existingStartIndex = detailedTimeSlots.indexOf(item.timeStart);
-      const existingEndIndex = detailedTimeSlots.indexOf(item.timeEnd);
-
-      const newStartIndex = detailedTimeSlots.indexOf(newSchedule.timeStart);
-      const newEndIndex = detailedTimeSlots.indexOf(newSchedule.timeEnd);
-
-      // Check if the time slots overlap
-      return (
-        (newStartIndex < existingEndIndex && newEndIndex > existingStartIndex)
-      );
-    });
-
-    if (conflictItem) {
-      alert(`
-        Conflict detected:
-        day: ${conflictItem.day}
-        Time: ${conflictItem.timeStart} - ${conflictItem.timeEnd}
-        Subject: ${conflictItem.subject}
-        Group: ${conflictItem.group}
-      `);
-      return false;
-    }
-
-    const updatedSchedule = [...schedules, newSchedule];
-    setSchedules(updatedSchedule);
-    updateSchedule(updatedSchedule);
-    return true;
-  };
+  
 
   return (
     <div className="container mx-auto p-4">
@@ -118,14 +74,16 @@ const TeacherPage = () => {
             </button>
           )}
         </div>
-        <div className="w-2/3">
+        <div className="w-2/3 ">
           {selectedTeacher && (
             <>
               <h2 className="text-2xl font-semibold mb-2 w-full">Schedule for {selectedTeacher}</h2>
-              <ScheduleTable
-                schedule={schedules}
-                onEdit={editSchedule}
-              />
+              <MyContext.Provider value={{ teacher: selectedTeacher, setSchedules }}>
+                <ScheduleTable
+                  schedule={schedules}
+                  isModify={true}
+                />
+              </MyContext.Provider>
             </>
           )}
         </div>

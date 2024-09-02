@@ -1,156 +1,112 @@
-import React, { useState } from 'react';
-import { defaultEditingDetails, EditingDetails, ScheduleItem } from '../models'
-import { detailedTimeSlots as timeSlots, days } from '../utils/constant'
+import { useState } from 'react';
+import { headers, orderedDate } from '../utils/constant';
+import { getColorByDate, timeToCol } from '../utils';
+import { ScheduleItem } from '../models';
+import EditPopup from './EditPopup';
 
 interface ScheduleTableProps {
   schedule: ScheduleItem[];
-  onEdit?: (details: EditingDetails) => boolean;
+  isModify?: boolean;
 }
 
-const ScheduleTable: React.FC<ScheduleTableProps> = ({ schedule, onEdit }) => {
+function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editingDetails, setEditingDetails] = useState<EditingDetails>(defaultEditingDetails);
-  
+  const [selectedSlot, setSelectedSlot] = useState<ScheduleItem | null>(null);
 
-  function handleEdit(day: string, timeSlot: string) {
-    const existingEntry = findSubject(day, timeSlot);
-
-    if (existingEntry) {
-      const duration = timeSlots.indexOf(existingEntry.timeEnd) - timeSlots.indexOf(existingEntry.timeStart);
-      setEditingDetails({
-        ...existingEntry,
-        duration: duration > 0 ? duration : 1,
-        timeSlot: existingEntry.timeStart
-      })
-    }else{
-      setEditingDetails({ day, timeSlot, duration: 1, subject: '', group: '' })
-    }
-
-    setIsEditing(true);
-  };
-
-  function handleSave() {
-    let status = false;
-    if (onEdit) {
-      status = onEdit(editingDetails);
-    }
-
-    if(status) resetEditing();
-  };
-
-  function handleDelete() {
-    if (onEdit) {
-      onEdit({
-        ...editingDetails,
-        subject: '', // Clear subject to indicate deletion
-        group: '',   // Clear group to indicate deletion
-        duration: 1, // Reset duration
-      });
-    }
-    resetEditing();
-  }
-
-  function resetEditing() {
+  function handleEdit() {
+    setSelectedSlot(null);
     setIsEditing(false);
-    setEditingDetails({ day: '', timeSlot: '', duration: 1, subject: '', group: '' });
   }
 
-  function findSubject(day: string, timeSlot: string) {
-    return schedule.find(
-      (item) =>
-        item.day === day &&
-        item.timeStart <= timeSlot &&
-        item.timeEnd > timeSlot
-    );
+  function selectSlot(course: ScheduleItem) {
+    setSelectedSlot(course);
+    setIsEditing(true);
   }
 
   return (
-    <div>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day/Time</th>
-            {timeSlots.map((timeSlot) => (
-              <th key={timeSlot} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{timeSlot}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {days.map((day, dayIdx) => (
-            <tr key={day} className={dayIdx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 h-16">{day}</td>
-              {timeSlots.map((timeSlot) => (
-                <td
-                  key={`${day}-${timeSlot}`}
-                  onClick={() => handleEdit(day, timeSlot)}
-                  className={`px-6 py-4 whitespace-nowrap text-sm ${onEdit ? 'cursor-pointer' : ''} ${findSubject(day, timeSlot)?.subject || '' ? 'bg-green-100' : ''} hover:bg-gray-100`}
-                >
-                  {findSubject(day, timeSlot)?.subject || ''}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {isEditing && onEdit && (
-        <div className="modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-4 rounded-md">
-            <h2 className="text-lg font-bold mb-4">Edit Schedule</h2>
-            <label className="block">
-              Detail : {editingDetails.day} {editingDetails.timeSlot}
-            </label>
-            <label className="block mb-2">
-              Subject:
-              <input
-                type="text"
-                value={editingDetails.subject}
-                onChange={(e) => setEditingDetails({ ...editingDetails, subject: e.target.value })}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              />
-            </label>
-            <label className="block mb-2">
-              Duration (in slots of 30 mins): 
-              <input
-                type="number"
-                value={editingDetails.duration}
-                onChange={(e) => setEditingDetails({ ...editingDetails, duration: parseInt(e.target.value) })}
-                min="1"
-                className="border border-gray-300 p-2 rounded-md w-full"
-              />
-            </label>
-            <label className="block mb-2">
-              Group:
-              <input
-                type="text"
-                value={editingDetails.group}
-                onChange={(e) => setEditingDetails({ ...editingDetails, group: e.target.value })}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              />
-            </label>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={handleDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
+    <div className='flex flex-col'>
+      <div className="overflow-x-auto border">
+          <div className="overflow-x-hidden table-w" id="table">
+            <div className="grid grid-cols-26">
+              {headers.map(( header, idx ) => 
+              <div key={idx}
+                className="border py-1 pl-1 col-span-2 text-black border-gray-700"
               >
-                Delete
-              </button>
-              <button
-                onClick={resetEditing}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
-              >
-                Save
-              </button>
+              {header}
+              </div>
+              )}
             </div>
+
+            {orderedDate.map((date, dateIndex) => (
+              <div key={dateIndex} className="grid grid-cols-26 min-h-16 md:min-h-24 border border-gray-700">
+                <div className={`p-1 md:p-3 col-span-2 border-r-2 border-gray-700 ${getColorByDate(date)}`} >
+                  <span className="font-bold text-gray-900">{ date }</span>
+                </div>
+                {
+                  schedule.map((course, courseIndex) => {
+                    if (course.day == date)
+                    return <div
+                      key={`course-${courseIndex}`}
+                      onClick={() => isModify && selectSlot(course)}
+                      className={`
+                        border
+                        p-2
+                        md:px-3 md:py-2
+                        rounded
+                        text-xs
+                        md:text-sm
+                        flex flex-col
+                        justify-between
+                        hover:bg-opacity-70
+                        overflow-hidden
+                        ${isModify && `cursor-pointer`}
+                        bg-opacity-100 border-gray-700
+                        ${getColorByDate(date)}
+                        my-col-start-${timeToCol(course.timeStart)} 
+                        my-col-end-${timeToCol(course.timeEnd)}
+                      `}
+                    >
+                      <p className="flex flex-warp justify-between mb-2">
+                        <span>{`[${course.timeStart} - ${course.timeEnd}]`}</span>
+                      </p>
+                      <p>{course.subject}</p>
+                      <div className="flex justify-between text-gray-700 text-xs">
+                        { isModify 
+                          ?
+                          <div className="text-right ">
+                            <span>group : {course.group}</span>
+                          </div> 
+                          :
+                          <div>
+                            <span>teacher : <br />{course.teacher}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  })
+                }
+              </div>
+            ))}
           </div>
         </div>
-      )}
+
+      {
+        isEditing &&
+        <EditPopup 
+          selectedSlot={selectedSlot}
+          callback={handleEdit}
+        />
+      }
+
+      {
+        isModify &&
+        <button 
+          className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mt-6"
+          onClick={() => setIsEditing(true)}
+        >
+          Add
+        </button>
+      }
     </div>
   );
 };

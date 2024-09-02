@@ -4,7 +4,7 @@ import { ScheduleItem } from '../models';
 import { fetchData, getSchedule, updateData } from '../utils';
 
 
-const ClassPage = () => {
+function ClassPage() {
   const [groups, setGroups] = useState<string[]>(fetchData('groups'));
   const [selectedGroup, setSelectedGroup] = useState<string>('');
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
@@ -36,9 +36,9 @@ const ClassPage = () => {
         <div className="w-1/3">
           <h2 className="text-2xl font-semibold mb-2">Groups</h2>
           <ul className="list-disc pl-5 mb-4">
-            {groups.map((group) => (
+            {groups.map((group, idx) => (
               <li
-                key={group}
+                key={idx}
                 onClick={() => setSelectedGroup(group)}
                 className={`cursor-pointer py-1 ${
                   selectedGroup === group ? 'text-blue-500 font-bold' : ''

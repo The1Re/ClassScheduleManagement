@@ -1,4 +1,5 @@
 interface ScheduleItem {
+  id: number,
   day: string,
   subject: string,
   timeStart: string,
@@ -9,13 +10,13 @@ interface ScheduleItem {
 
 interface EditingDetails {
   day: string;
-  timeSlot: string;
-  duration: number;
+  timeStart: string;
+  timeEnd: string;
   subject: string;
   group: string;
 }
 
-const defaultEditingDetails: EditingDetails = { day: '', timeSlot: '', duration: 1, subject: '', group: '' };
+const defaultEditingDetails: EditingDetails = { day: 'MON', timeStart: '8:00', timeEnd: '9:30', subject: '', group: '' };
 
 export type {
   ScheduleItem,

@@ -73,8 +73,9 @@ function getCollision(target: ScheduleItem, schedules: ScheduleItem[]): Schedule
         const startCol = timeToCol(schedule.timeStart);
         const endCol = timeToCol(schedule.timeEnd);
         
+        console.log(startTargetCol, endCol);
         for (let i=startTargetCol; i<=endTargetCol; i++) {
-            if (i>=startCol && i<=endCol)
+            if (i>startCol && i<endCol)
                 return true;
         }
         return false;
@@ -88,7 +89,7 @@ function getCollision(target: ScheduleItem, schedules: ScheduleItem[]): Schedule
         const endCol = timeToCol(schedule.timeEnd);
         
         for (let i=startTargetCol; i<=endTargetCol; i++) {
-            if (i>=startCol && i<=endCol)
+            if (i>startCol && i<endCol)
                 return true;
         }
         return false;

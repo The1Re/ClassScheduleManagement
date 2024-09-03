@@ -101,7 +101,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
       {
         isModify &&
         <button 
-          className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mt-6"
+          className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mt-6 hover:bg-blue-400"
           onClick={() => setIsEditing(true)}
         >
           Add

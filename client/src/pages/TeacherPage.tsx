@@ -24,8 +24,7 @@ function TeacherPage() {
       setSchedules(getSchedule('teachers', selectedTeacher));
       return;
     }
-    setSchedules(schedules.filter((schedule) => schedule.teacher === selectedTeacher));
-  }, [selectedTeacher, schedules])
+  }, [selectedTeacher])
 
   function addTeacher(name: string) {
     if (!name || teachers.some(teacher => teacher === name)) return;

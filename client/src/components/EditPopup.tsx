@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { defaultEditingDetails, EditingDetails, ScheduleItem } from "../models";
 import { IMyContext, MyContext } from "../pages/TeacherPage";
-import { createId, getAllSchedule, getCollision, sortScheduleByTime, updateSchedule } from "../utils";
+import { createId, getAllSchedule, getCollision, sortScheduleByTime, timeToCol, updateSchedule } from "../utils";
+import { orderedDate } from "../utils/constant";
 
 
 interface EditPopupProps {
@@ -18,7 +19,25 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             setEditingDetails({...selectedSlot})
     }, [selectedSlot])
 
+    function isFormValid(): boolean {
+        if (timeToCol(editingDetails.timeEnd) < timeToCol(editingDetails.timeStart)){
+            alert(`
+               Input error: timeStart and timeEnd is not valid!
+            `);
+            return false;
+        }else if (!orderedDate.includes(editingDetails.day)) {
+            alert(`
+                Input error: day must be ${orderedDate.toString()}
+            `)
+            return false;
+        }
+        return true;
+    }
+
     function handleSave() {
+        if (!isFormValid())
+            return;
+
         let schedules = getAllSchedule();
         const newSchedule:ScheduleItem = {
             ...editingDetails,
@@ -43,7 +62,7 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
 
         const collision = getCollision(newSchedule, schedules);
 
-        if (!collision || (selectedSlot?.timeStart === newSchedule.timeStart && selectedSlot.timeEnd === newSchedule.timeEnd)) {
+        if (!collision || (collision.subject === selectedSlot?.subject)) {
             if (selectedSlot) {
                 const index = schedules.findIndex(schedule => schedule.id === selectedSlot.id);
                 if (index !== -1)
@@ -53,11 +72,11 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             }
     
             updateSchedule(sortScheduleByTime(schedules));
-            setSchedules(schedules);
+            setSchedules(schedules.filter((schedule) => schedule.teacher === teacher));
             callback();
         }else{
             alert(`
-                Subject is collision
+                Collision by ${collision.teacher !== newSchedule.teacher ? 'group' : 'teacher'}
                 subject : ${collision.subject}
                 day : ${collision.day}
                 time : ${collision.timeStart} - ${collision.timeEnd}
@@ -78,7 +97,7 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             schedule.timeStart === editingDetails.timeStart
         ));
         updateSchedule(updatedSchedule);
-        setSchedules(updatedSchedule);
+        setSchedules(updatedSchedule.filter((schedule) => schedule.teacher === teacher));
         callback();
     }
 

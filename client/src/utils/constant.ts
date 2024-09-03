@@ -14,7 +14,7 @@ const headers = [
     '19:00',
 ];
 
-const orderedDate = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+const orderedDate = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     
 
 export {

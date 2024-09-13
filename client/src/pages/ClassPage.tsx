@@ -31,9 +31,9 @@ function ClassPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Class Page</h1>
       <div className="flex space-x-4">
-        <div className="w-1/3">
+        <div className="w-1/4">
+          <h1 className="text-3xl font-bold mb-4">Class Page</h1>
           <h2 className="text-2xl font-semibold mb-2">Groups</h2>
           <ul className="list-disc pl-5 mb-4">
             {groups.map((group, idx) => (
@@ -63,7 +63,7 @@ function ClassPage() {
             </button>
           )}
         </div>
-        <div className="w-2/3">
+        <div className="w-3/4">
           {selectedGroup && (
             <>
               <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedGroup}</h2>

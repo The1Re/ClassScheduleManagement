@@ -41,9 +41,9 @@ function TeacherPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Teacher Page</h1>
       <div className="flex space-x-4">
-        <div className="w-1/3">
+        <div className="w-1/4">
+          <h1 className="text-3xl font-bold mb-4">Teacher Page</h1>
           <h2 className="text-2xl font-semibold mb-2">Teachers</h2>
           <ul className="list-disc pl-5 mb-4">
             {teachers.map((teacher, idx) => (
@@ -73,7 +73,7 @@ function TeacherPage() {
             </button>
           )}
         </div>
-        <div className="w-2/3 ">
+        <div className="w-3/4 ">
           {selectedTeacher && (
             <>
               <h2 className="text-2xl font-semibold mb-2 w-full">Schedule for {selectedTeacher}</h2>

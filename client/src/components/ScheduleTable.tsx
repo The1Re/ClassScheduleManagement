@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { headers, orderedDate } from '../utils/constant';
 import { getColorByDate, timeToCol } from '../utils';
 import { ScheduleItem } from '../models';
@@ -12,6 +12,19 @@ interface ScheduleTableProps {
 function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<ScheduleItem | null>(null);
+
+  useEffect(() => {
+    const handleKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key == 'Enter') {
+        setIsEditing(true);
+      }
+    }
+
+    if (!isEditing)
+      document.addEventListener("keydown", handleKey);
+
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isEditing])
 
   function handleEdit() {
     setSelectedSlot(null);
@@ -38,7 +51,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
             </div>
 
             {orderedDate.map((date, dateIndex) => (
-              <div key={dateIndex} className="grid grid-cols-26 min-h-16 md:min-h-24 border border-gray-700">
+              <div key={dateIndex} className="grid grid-cols-26 min-h-16 md:min-h-20 border border-gray-700">
                 <div className={`p-1 md:p-3 col-span-2 border-r-2 border-gray-700 ${getColorByDate(date)}`} >
                   <span className="font-bold text-gray-900">{ date }</span>
                 </div>

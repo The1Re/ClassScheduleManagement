@@ -98,6 +98,23 @@ function getCollision(target: ScheduleItem, schedules: ScheduleItem[]): Schedule
     return teacherCollision || studentCollision;
 }
 
+const download = (content:string, fileName?: string) => {
+    // Create a link element
+    const blob = new Blob([content], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName || 'schedule.json'; // Specify the file name for the download
+
+    // Append the link to the body
+    document.body.appendChild(link);
+
+    // Programmatically click the link to trigger the download
+    link.click();
+
+    // Remove the link from the body
+    document.body.removeChild(link);
+ }
+
 export {
     fetchData,
     updateData,
@@ -108,5 +125,6 @@ export {
     timeToCol,
     getColorByDate,
     sortScheduleByTime,
-    getCollision
+    getCollision,
+    download
 }

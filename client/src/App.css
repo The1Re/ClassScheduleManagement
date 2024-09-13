@@ -1,5 +1,5 @@
 .table-w {
-	min-width: 1000px;
+	min-width: 1300px;
 }
 .grid-cols-26 {
   grid-template-columns: repeat(26, minmax(0, 1fr));

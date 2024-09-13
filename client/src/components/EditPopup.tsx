@@ -19,7 +19,7 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             setEditingDetails({...selectedSlot})
     }, [selectedSlot])
 
-    function isFormValid(): boolean {
+    const isFormValid = () => {
         if (timeToCol(editingDetails.timeEnd) < timeToCol(editingDetails.timeStart)){
             alert(`
                Input error: timeStart and timeEnd is not valid!
@@ -32,9 +32,9 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             return false;
         }
         return true;
-    }
+    };
 
-    function handleSave() {
+    const handleSave = () => {
         if (!isFormValid())
             return;
 
@@ -84,9 +84,9 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
                 group : ${collision.group}
             `)
         }
-    }
+    };
 
-    function handleDelete() {
+    const handleDelete = () => {
         const schedules = getAllSchedule();
         const updatedSchedule = schedules.filter(schedule => !(
             schedule.day === editingDetails.day &&
@@ -99,7 +99,8 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
         updateSchedule(updatedSchedule);
         setSchedules(updatedSchedule.filter((schedule) => schedule.teacher === teacher));
         callback();
-    }
+    };
+
 
     return (
         <div className="modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">

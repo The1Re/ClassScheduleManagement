@@ -40,7 +40,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
     <div className='flex flex-col'>
       <div className="overflow-x-auto border">
           <div className="overflow-x-hidden table-w" id="table">
-            <div className="grid grid-cols-26">
+            <div className="grid" style={{ gridTemplateColumns: '40px 40px repeat(24, 1fr)' }}>
               {headers.map(( header, idx ) => 
               <div key={idx}
                 className="border py-1 pl-1 col-span-2 text-black border-gray-700"
@@ -51,7 +51,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
             </div>
 
             {orderedDate.map((date, dateIndex) => (
-              <div key={dateIndex} className="grid grid-cols-26 min-h-16 md:min-h-20 border border-gray-700">
+              <div key={dateIndex} className="grid min-h-16 md:min-h-20 border border-gray-700" style={{ gridTemplateColumns: '40px 40px repeat(24, 1fr)' }}>
                 <div className={`p-1 md:p-3 col-span-2 border-r-2 border-gray-700 ${getColorByDate(date)}`} >
                   <span className="font-bold text-gray-900">{ date }</span>
                 </div>

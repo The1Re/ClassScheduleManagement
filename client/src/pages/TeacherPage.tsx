@@ -74,7 +74,7 @@ function TeacherPage() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex space-x-4 max-md:flex-col">
-        <div className="w-1/5 max-md:w-full">
+        <div className="w-1/6 max-md:w-full">
           <h1 className="text-3xl font-bold mb-4">Teacher Page</h1>
           <h2 className="text-2xl font-semibold mb-2">Teachers</h2>
           <ul className="list-disc pl-5 mb-4">
@@ -105,7 +105,7 @@ function TeacherPage() {
             </button>
           )}
         </div>
-        <div className="w-4/5 max-md:w-full">
+        <div className="w-5/6 max-md:w-full">
           {selectedTeacher && (
             <>
               <h2 className="text-2xl font-semibold mb-2 w-full">Schedule for {selectedTeacher}</h2>

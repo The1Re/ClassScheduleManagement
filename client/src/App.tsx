@@ -4,7 +4,7 @@ import NavBar from './components/Navbar';
 import './App.css'
 
 const App = () => {
-  const dev = true;
+  const dev = false;
   return (
     <Router>
       <div>

@@ -18,11 +18,18 @@ interface EditingDetails {
   room: string
 }
 
+interface ILocalStorage {
+  teachers: string[],
+  groups: string[],
+  schedules?: ScheduleItem[]
+}
+
 const defaultEditingDetails: EditingDetails = { day: 'MON', timeStart: '8:00', timeEnd: '9:30', subject: '', group: '', room: '' };
 
 export type {
   ScheduleItem,
   EditingDetails,
+  ILocalStorage
 }
 
 export {

@@ -115,11 +115,11 @@ async function componentToImage(selected: string, type: 'teacher' | 'group') {
     document.body.removeChild(link);
 }
 
-const exportToJson = (content:string, fileName?: string) => {
+const exportToJson = (content:string) => {
     const blob = new Blob([content], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = fileName || 'schedule.json'; 
+    link.download = 'schedule.json'; 
 
     document.body.appendChild(link);
     link.click();

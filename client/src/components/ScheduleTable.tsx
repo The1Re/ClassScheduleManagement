@@ -15,7 +15,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
 
   useEffect(() => {
     const handleKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key == 'Enter') {
+      if (isModify && event.key == 'Enter') {
         setIsEditing(true);
       }
     }
@@ -24,7 +24,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
       document.addEventListener("keydown", handleKey);
 
     return () => document.removeEventListener("keydown", handleKey);
-  }, [isEditing])
+  }, [isEditing, isModify])
 
   function handleEdit() {
     setSelectedSlot(null);
@@ -80,7 +80,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
                       `}
                     >
                       <p className="flex flex-warp justify-between mb-2">
-                        <span>{`[${course.timeStart} - ${course.timeEnd}]`}</span>
+                        <span>{`${course.room}`}</span>
                       </p>
                       <p>{course.subject}</p>
                       <div className="flex justify-between text-gray-700 text-xs">

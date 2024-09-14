@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ScheduleTable from '../components/ScheduleTable';
 import { ScheduleItem } from '../models';
 import { fetchData, getSchedule, updateData } from '../utils';
-
+import Swal from 'sweetalert2';
 
 function ClassPage() {
   const [groups, setGroups] = useState<string[]>(fetchData('groups'));
@@ -18,21 +18,48 @@ function ClassPage() {
       setSchedules(getSchedule('groups', selectedGroup));
   }, [selectedGroup]);
 
-  function addGroup(name: string) {
-    if (!name || groups.includes(name)) return;
-    setGroups([...groups, name]);
+  function addGroup() {
+    Swal.fire({
+      title: 'Enter Group name',
+      input: 'text',
+      showCancelButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const name = result.value
+        if (!name || groups.some(group => group === name)) return;
+        setGroups([...groups, name]);
+        Swal.fire({
+          title: 'Add Success!',
+          icon: 'success'
+        })
+      }  
+    })
   };
 
   function removeGroup(name: string) {
-    const updatedGroups = groups.filter(group => group !== name);
-    setGroups(updatedGroups);
-    if (selectedGroup === name) setSelectedGroup('');
+    Swal.fire({
+      title: 'Are you sure?',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      icon: 'question'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedGroups = groups.filter(group => group !== name);
+        setGroups(updatedGroups);
+        if (selectedGroup === name) setSelectedGroup('');
+        Swal.fire({
+          title: 'Delete Success!',
+          icon: 'success'
+        })
+      }
+    })
+    
   };
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex space-x-4">
-        <div className="w-1/4">
+      <div className="flex space-x-4 max-md:flex-col">
+        <div className="w-1/5 max-md:w-full">
           <h1 className="text-3xl font-bold mb-4">Class Page</h1>
           <h2 className="text-2xl font-semibold mb-2">Groups</h2>
           <ul className="list-disc pl-5 mb-4">
@@ -49,8 +76,8 @@ function ClassPage() {
             ))}
           </ul>
           <button
-            onClick={() => addGroup(prompt('Enter group name') || '')}
-            className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mr-4"
+            onClick={() => addGroup()}
+            className="bg-blue-500 text-white py-2 px-4 rounded mb-2 w-auto mr-6"
           >
             Add Group
           </button>
@@ -63,7 +90,7 @@ function ClassPage() {
             </button>
           )}
         </div>
-        <div className="w-3/4">
+        <div className="w-4/5 max-md:w-full max-md:mt-8">
           {selectedGroup && (
             <>
               <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedGroup}</h2>

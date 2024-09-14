@@ -3,7 +3,7 @@ import { defaultEditingDetails, EditingDetails, ScheduleItem } from "../models";
 import { IMyContext, MyContext } from "../pages/TeacherPage";
 import { createId, getAllSchedule, getCollision, sortScheduleByTime, timeToCol, updateSchedule } from "../utils";
 import { orderedDate } from "../utils/constant";
-
+import Swal from "sweetalert2";
 
 interface EditPopupProps {
     selectedSlot: ScheduleItem | null,
@@ -19,13 +19,13 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             setEditingDetails({...selectedSlot})
     }, [selectedSlot])
 
-    const isFormValid = () => {
-        if (timeToCol(editingDetails.timeEnd) < timeToCol(editingDetails.timeStart)){
+    const isFormValid = (edit: EditingDetails) => {
+        if (timeToCol(edit.timeEnd) < timeToCol(edit.timeStart)){
             alert(`
                Input error: timeStart and timeEnd is not valid!
             `);
             return false;
-        }else if (!orderedDate.includes(editingDetails.day)) {
+        }else if (!orderedDate.includes(edit.day)) {
             alert(`
                 Input error: day must be ${orderedDate.toString()}
             `)
@@ -35,7 +35,7 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
     };
 
     const handleSave = () => {
-        if (!isFormValid())
+        if (!isFormValid(editingDetails))
             return;
 
         let schedules = getAllSchedule();
@@ -52,7 +52,8 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
                 schedule.subject === editingDetails.subject &&
                 schedule.teacher === teacher &&
                 schedule.timeEnd === editingDetails.timeEnd &&
-                schedule.timeStart === editingDetails.timeStart
+                schedule.timeStart === editingDetails.timeStart &&
+                schedule.room === editingDetails.room
             ));
             if (isEqual) {
                 callback();
@@ -74,31 +75,57 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
             updateSchedule(sortScheduleByTime(schedules));
             setSchedules(schedules.filter((schedule) => schedule.teacher === teacher));
             callback();
+            Swal.fire({
+                title: (selectedSlot) ? 'Edit Success!' : 'Add Success!',
+                icon: 'success'
+            });
         }else{
-            alert(`
-                Collision by ${collision.teacher !== newSchedule.teacher ? 'group' : 'teacher'}
-                subject : ${collision.subject}
-                day : ${collision.day}
-                time : ${collision.timeStart} - ${collision.timeEnd}
-                teacher : ${collision.teacher}
-                group : ${collision.group}
-            `)
+            Swal.fire({
+                icon: 'error',
+                title: 'Collision Detected!',
+                html: `
+                    <div style="text-align: left; padding-left: 30%;">
+                        <p><strong>Collision by: </strong> ${collision.teacher !== newSchedule.teacher ? 'group' : 'teacher'}</p>
+                        <p><strong>Subject: </strong> ${collision.subject}</p>
+                        <p><strong>Day: </strong> ${collision.day}</p>
+                        <p><strong>Time: </strong> ${collision.timeStart} - ${collision.timeEnd}</p>
+                        <p><strong>Teacher: </strong> ${collision.teacher}</p>
+                        <p><strong>Group: </strong> ${collision.group}</p>
+                        <p><strong>Room: </strong> ${collision.room}</p>
+                    </div>
+                `,
+                confirmButtonText: 'Ok'
+              });
         }
     };
 
     const handleDelete = () => {
-        const schedules = getAllSchedule();
-        const updatedSchedule = schedules.filter(schedule => !(
-            schedule.day === editingDetails.day &&
-            schedule.group === editingDetails.group &&
-            schedule.subject === editingDetails.subject &&
-            schedule.teacher === teacher &&
-            schedule.timeEnd === editingDetails.timeEnd &&
-            schedule.timeStart === editingDetails.timeStart
-        ));
-        updateSchedule(updatedSchedule);
-        setSchedules(updatedSchedule.filter((schedule) => schedule.teacher === teacher));
-        callback();
+        Swal.fire({
+            title: 'Are you sure?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const schedules = getAllSchedule();
+                const updatedSchedule = schedules.filter(schedule => !(
+                    schedule.day === editingDetails.day &&
+                    schedule.group === editingDetails.group &&
+                    schedule.subject === editingDetails.subject &&
+                    schedule.teacher === teacher &&
+                    schedule.timeEnd === editingDetails.timeEnd &&
+                    schedule.timeStart === editingDetails.timeStart &&
+                    schedule.room === editingDetails.room
+                ));
+                updateSchedule(updatedSchedule);
+                setSchedules(updatedSchedule.filter((schedule) => schedule.teacher === teacher));
+                callback();
+                Swal.fire({
+                    title: 'Delete Success!',
+                    icon: 'success'
+                })
+            }
+        })
     };
 
 
@@ -149,6 +176,15 @@ function EditPopup({ selectedSlot, callback } : EditPopupProps) {
                 value={editingDetails.group}
                 onChange={(e) => setEditingDetails({ ...editingDetails, group: e.target.value })}
                 className="border border-gray-300 p-2 rounded-md w-full"
+            />
+            </label>
+            <label className="block mb-2">
+            Room:
+            <input
+                type="text"
+                value={editingDetails.room}
+                onChange={(e) => setEditingDetails({ ...editingDetails, room: e.target.value })}
+                className="border border-gray-300 p-2 rounded-md w-full mb-4"
             />
             </label>
             <div className="flex justify-end space-x-2">

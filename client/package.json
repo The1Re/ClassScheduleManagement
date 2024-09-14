@@ -14,7 +14,8 @@
     "client": "file:",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "sweetalert2": "^11.14.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -1,3 +1,4 @@
+import html2canvas from "html2canvas";
 import { ScheduleItem } from "../models";
 
 
@@ -98,22 +99,32 @@ function getCollision(target: ScheduleItem, schedules: ScheduleItem[]): Schedule
     return teacherCollision || studentCollision;
 }
 
-const download = (content:string, fileName?: string) => {
-    // Create a link element
+async function componentToImage(selected: string, type: 'teacher' | 'group') {
+    const element = document.getElementById('print') as HTMLElement;
+    const canvas = await html2canvas(element, {
+      windowWidth: 1920,
+      windowHeight: 1080
+    });
+
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `${type === 'teacher' ? 'T.' : 'G.'}${selected}-schedule.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+const exportToJson = (content:string, fileName?: string) => {
     const blob = new Blob([content], { type: 'application/json' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = fileName || 'schedule.json'; // Specify the file name for the download
+    link.download = fileName || 'schedule.json'; 
 
-    // Append the link to the body
     document.body.appendChild(link);
-
-    // Programmatically click the link to trigger the download
     link.click();
-
-    // Remove the link from the body
     document.body.removeChild(link);
- }
+}
 
 export {
     fetchData,
@@ -126,5 +137,6 @@ export {
     getColorByDate,
     sortScheduleByTime,
     getCollision,
-    download
+    componentToImage,
+    exportToJson
 }

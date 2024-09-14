@@ -91,7 +91,7 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
                           </div> 
                           :
                           <div>
-                            <span>teacher : <br />{course.teacher}</span>
+                            <span>teacher : {course.teacher}</span>
                           </div>
                         }
                       </div>

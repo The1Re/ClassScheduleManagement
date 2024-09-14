@@ -1,9 +1,16 @@
 import { useState, useEffect, createContext } from 'react';
 import ScheduleTable from '../components/ScheduleTable';
-import { fetchData, getAllSchedule, getSchedule, sortScheduleByTime, updateData, updateSchedule } from '../utils';
+import { 
+  componentToImage,
+  fetchData, 
+  getAllSchedule, 
+  getSchedule, 
+  sortScheduleByTime, 
+  updateData, 
+  updateSchedule 
+} from '../utils';
 import { ScheduleItem } from '../models';
 import Swal from 'sweetalert2';
-import html2canvas from 'html2canvas';
 
 export interface IMyContext {
   teacher: string
@@ -70,21 +77,7 @@ function TeacherPage() {
     })
   };
 
-  async function handleImageDownload() {
-    const element = document.getElementById('print') as HTMLElement;
-    const canvas = await html2canvas(element, {
-      windowWidth: 1920,
-      windowHeight: 1080
-    });
-
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = `${selectedTeacher}-schedule.png`;
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  
   
 
   return (
@@ -128,7 +121,7 @@ function TeacherPage() {
                 <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedTeacher}</h2>
                 <button 
                   className='block border border-green-500 rounded px-3 py-1 text-green-500 hover:bg-gray-100 text-md lg:text-lg'
-                  onClick={handleImageDownload}
+                  onClick={() => componentToImage(selectedTeacher, 'teacher')}
                 >
                   Save as Image
                 </button >

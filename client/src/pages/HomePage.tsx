@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import { download } from "../utils";
+import { exportToJson } from "../utils";
 
 // import { useState } from 'react';
 function HomePage() {
@@ -31,8 +31,7 @@ function HomePage() {
   };
 
   const saveSchedule = async () => {
-    const localStorageData = JSON.stringify(localStorage);
-    download(localStorageData);
+    exportToJson(JSON.stringify(localStorage));
   };
 
   return (

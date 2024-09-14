@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ScheduleTable from '../components/ScheduleTable';
 import { ScheduleItem } from '../models';
-import { fetchData, getSchedule, updateData } from '../utils';
+import { componentToImage, fetchData, getSchedule, updateData } from '../utils';
 import Swal from 'sweetalert2';
 
 function ClassPage() {
@@ -93,7 +93,15 @@ function ClassPage() {
         <div className="w-5/6 max-md:w-full max-md:mt-8">
           {selectedGroup && (
             <>
-              <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedGroup}</h2>
+              <div className='mx-2 flex flex-wrap justify-between mb-2'>
+                <h2 className="text-2xl font-semibold mb-2">Schedule for {selectedGroup}</h2>
+                <button 
+                  className='block border border-green-500 rounded px-3 py-1 text-green-500 hover:bg-gray-100 text-md lg:text-lg'
+                  onClick={() => componentToImage(selectedGroup, 'group')}
+                >
+                  Save as Image
+                </button >
+              </div>
               <ScheduleTable
                 schedule={schedules}
               />

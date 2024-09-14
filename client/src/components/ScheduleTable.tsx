@@ -38,12 +38,12 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
 
   return (
     <div className='flex flex-col'>
-      <div className="overflow-x-auto border">
+      <div className="overflow-x-auto border" id='print'>
           <div className="overflow-x-hidden table-w" id="table">
-            <div className="grid" style={{ gridTemplateColumns: '40px 40px repeat(24, 1fr)' }}>
+            <div className="grid grid-custom">
               {headers.map(( header, idx ) => 
               <div key={idx}
-                className="border py-1 pl-1 col-span-2 text-black border-gray-700"
+                className="border py-1 pl-1 col-span-2 text-black border-gray-300"
               >
               {header}
               </div>
@@ -51,8 +51,8 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
             </div>
 
             {orderedDate.map((date, dateIndex) => (
-              <div key={dateIndex} className="grid min-h-16 md:min-h-20 border border-gray-700" style={{ gridTemplateColumns: '40px 40px repeat(24, 1fr)' }}>
-                <div className={`p-1 md:p-3 col-span-2 border-r-2 border-gray-700 ${getColorByDate(date)}`} >
+              <div key={dateIndex} className="grid grid-custom min-h-16 md:min-h-20 border border-gray-300">
+                <div className={`p-1 md:p-3 col-span-2 border-r-2 border-gray-300 ${getColorByDate(date)}`} >
                   <span className="font-bold text-gray-900">{ date }</span>
                 </div>
                 {
@@ -73,13 +73,13 @@ function ScheduleTable({ schedule, isModify }: ScheduleTableProps) {
                         hover:bg-opacity-70
                         overflow-hidden
                         ${isModify && `cursor-pointer`}
-                        bg-opacity-100 border-gray-700
+                        bg-opacity-100 border-gray-300
                         ${getColorByDate(date)}
                         my-col-start-${timeToCol(course.timeStart)} 
                         my-col-end-${timeToCol(course.timeEnd)}
                       `}
                     >
-                      <p className="flex flex-warp justify-between mb-2">
+                      <p className="flex flex-warp justify-between ">
                         <span>{`${course.room}`}</span>
                       </p>
                       <p>{course.subject}</p>

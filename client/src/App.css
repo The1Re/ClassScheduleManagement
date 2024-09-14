@@ -4,6 +4,11 @@
 .grid-cols-26 {
   grid-template-columns: repeat(26, minmax(0, 1fr));
 }
+
+.grid-custom {
+  grid-template-columns: 40px 40px repeat(24, minmax(0, 1fr));
+}
+
 .my-col-start-1 {
   grid-column-start: 1
 }
